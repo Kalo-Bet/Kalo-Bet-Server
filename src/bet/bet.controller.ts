@@ -39,6 +39,21 @@ export class BetController {
         return this.betService.getBets()
     }
 
+    @Get('completed')
+    async getBetsWithBothSides(): Promise<Bet[]> {
+        return this.betService.getCompletedBets();
+    }
+
+    @Get('active')
+    async getActiveBets(): Promise<Bet[]> {
+        return this.betService.getActiveBets();
+    }
+
+    @Get('open')
+    async getBetsWithOneSide(): Promise<Bet[]> {
+        return this.betService.getOpenBets();
+    }
+
     @Get()
     async getAllOddBet(): Promise<OddsBet[]>{
         return this.betService.getOddBets()

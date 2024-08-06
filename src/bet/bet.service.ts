@@ -147,6 +147,44 @@ export class BetService {
         }
     }
 
+    async getOpenBets(): Promise<Bet[]> {
+        return this.prisma.bet.findMany({
+            where: {
+                OR: [
+                    { opponentId: null },
+                    { creatorId: null }
+                ]
+            }
+        });
+    }
+
+    async getActiveBets(): Promise<Bet[]> {
+        return this.prisma.bet.findMany({
+            where: {
+                status: BetStatus.OPEN
+            }
+        });
+    }
+
+    async getCompletedBets(): Promise<Bet[]> {
+        return this.prisma.bet.findMany({
+            where: {
+                status: BetStatus.SETTLED
+            }
+        });
+    }
+
+    // async getCompletedBets(): Promise<Bet[]> {
+    //     return await this.prisma.bet.findMany({
+    //         where: {
+    //             AND: [
+    //                 { creatorId: { not: null } },
+    //                 { opponentId: { not: null } }
+    //             ]
+    //         }
+    //     });
+    // }
+
     async getOddBets(): Promise<OddsBet[]> {
         try {
             return await this.prisma.oddsBet.findMany();
