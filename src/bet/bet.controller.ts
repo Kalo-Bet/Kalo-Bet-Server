@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Get, InternalServerErrorException, Post, Put, Query } from "@nestjs/common";
 import { Bet, OddsBet } from "@prisma/client";
 import { CreateUserAndBetDto } from "../dto/create-bet.dto";
 import { BetService } from "./bet.service";
@@ -34,13 +34,13 @@ export class BetController {
         return bet
     }
 
-    @Get()
+    @Get('all')
     async getAllBet(): Promise<Bet[]>{
         return this.betService.getBets()
     }
 
     @Get('completed')
-    async getBetsWithBothSides(): Promise<Bet[]> {
+    async getCompletedBets(): Promise<Bet[]> {
         return this.betService.getCompletedBets();
     }
 
@@ -50,15 +50,22 @@ export class BetController {
     }
 
     @Get('open')
-    async getBetsWithOneSide(): Promise<Bet[]> {
-        return this.betService.getOpenBets();
+    async getOpenBets(): Promise<Bet[]> {
+        console.log('Received request for open bets');
+        try {
+            const result = await this.betService.getOpenBets();
+            console.log('Successfully retrieved open bets');
+            return result;
+        } catch (error) {
+            console.error('Error in getOpenBets controller:', error);
+            throw new InternalServerErrorException('Failed to fetch open bets');
+        }
     }
 
-    @Get()
+    @Get('odds')
     async getAllOddBet(): Promise<OddsBet[]>{
         return this.betService.getOddBets()
     }
-
 
     @Post("userBets")
     async getAllUserBet(@Body() data: UserDetailsDto){

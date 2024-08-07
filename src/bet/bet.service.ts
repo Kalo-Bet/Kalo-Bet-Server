@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { Bet, OddsBet, Order, BetStatus, OrderStatus } from "@prisma/client";
 import { UserService } from "../user/user.service";
@@ -148,14 +148,24 @@ export class BetService {
     }
 
     async getOpenBets(): Promise<Bet[]> {
-        return this.prisma.bet.findMany({
-            where: {
-                OR: [
-                    { opponentId: null },
-                    { creatorId: null }
-                ]
-            }
-        });
+        try {
+            console.log('Attempting to fetch open bets...');
+            const result = await this.prisma.bet.findMany({
+                where: {
+                    status: BetStatus.OPEN,
+                    OR: [
+                        { opponentId: null },
+                        { opponentId: '' }
+                    ]
+                }
+            });
+            console.log('Fetched open bets:', result);
+            return result;
+        } catch (error) {
+            console.error('Error fetching open bets:', error);
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            throw new InternalServerErrorException('Failed to fetch open bets');
+        }
     }
 
     async getActiveBets(): Promise<Bet[]> {
