@@ -6,7 +6,7 @@ async function bootstrap() {
   
   // Enable CORS
   app.enableCors({
-    origin: 'http://localhost:5173, https://kalo.bet, kalo.bet',
+    origin: ['http://localhost:5173', 'https://www.kalo.bet', 'https://kalo.bet'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
