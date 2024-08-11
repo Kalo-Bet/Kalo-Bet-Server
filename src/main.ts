@@ -4,8 +4,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
+    
+    // Enable CORS
     app.enableCors({
-      origin: "*",
+      origin: ['http://localhost:5173', 'https://www.kalo.bet', 'https://kalo.bet'],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
       credentials: true,
