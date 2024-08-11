@@ -7,13 +7,17 @@ import { CreateUserDto } from "src/dto/user.dto";
 export class UserService {
     constructor(private readonly prisma: PrismaService) {}
 
+
     async findOrCreateUser(createUserDto: CreateUserDto): Promise<User> {
-        let user = await this.prisma.user.findFirst({
-            where: {
-                email: createUserDto.email,
-            },
-        });
-        if (!user) {
+        
+        try {
+          // First, try to find the user
+          let user = await this.prisma.user.findUnique({
+            where: { email: createUserDto.email },
+          });
+    
+          // If the user doesn't exist, create a new one
+          if (!user) {
             user = await this.prisma.user.create({
                 data: {
                     email: createUserDto.email,
@@ -23,9 +27,14 @@ export class UserService {
                     userName: createUserDto.userName
                 },
             });
+          }
+    
+          return user;
+        } catch (error) {
+          console.error('Error in findOrCreateUser:', error);
+          throw error; // or handle it as appropriate for your application
         }
-        return user;
-    }
+      }
 
     async getUserByEmail(email: string): Promise<User | null> {
         return this.prisma.user.findUnique({ where: { email } });

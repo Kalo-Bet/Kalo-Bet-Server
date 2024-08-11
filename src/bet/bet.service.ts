@@ -14,33 +14,68 @@ export class BetService {
         private readonly userService: UserService,
     ) { }
 
+    // async createBet(data: CreateUserAndBetDto): Promise<Bet> {
+    //     try {
+    //         const user = await this.userService.findOrCreateUser(data);
+
+    //     // console.log('Creating market with data:', {
+    //     //     title: data.bet.title,
+    //     //     description: data.bet.description || '',
+    //     //     outcomes: [data.bet.creatorAnswer, 'Against'],
+    //     //     lockTime: new Date(data.bet.betDeadline).getTime() / 1000,
+    //     //     mintAccount: mintAccount.toString(),
+    //     // });
+
+    //     // const marketResponse = await this.monacoService.createMarket({
+    //     //     title: data.bet.title,
+    //     //     description: data.bet.description || '',
+    //     //     outcomes: [data.bet.creatorAnswer, 'Against'],
+    //     //     lockTime: new Date(data.bet.betDeadline).getTime() / 1000,
+    //     //     mintAccount: mintAccount,
+    //     // });
+
+    //     // console.log('Market creation response:', marketResponse);
+
+    //     // if (!marketResponse.success) {
+    //     //     console.error('Market creation failed:', marketResponse.error);
+    //     //     throw new Error(`Failed to create market in Monaco Protocol: ${marketResponse.error}`);
+    //     // }
+    
+    //         const bet = await this.prisma.bet.create({
+    //             data: {
+    //                 condition: data.bet.condition,
+    //                 currency: data.bet.currency,
+    //                 title: data.bet.title,
+    //                 description: data.bet.description,
+    //                 betCondition: data.bet.betCondition,
+    //                 creatorId: user.id,
+    //                 isBetAvialable: data.bet.isBetAvialable,
+    //                 betDeadline: data.bet.betDeadline,
+    //                 creatorStakeAmount: data.bet.creatorStakeAmount,
+    //                 isBetApprove: data.bet.isBetApprove,
+    //                 creatorAnswer: data.bet.creatorAnswer,
+    //                 creatorName: user.userName,
+    //                 creatorAllow3partyApproval: data.bet.creatorAllow3partyApproval,
+    //                 betVisibilty: data.bet.betVisibilty,
+    //                 marketPublicKey: "xdbhbdcbdhcdb",
+    //                 status: BetStatus.OPEN,
+    //                 category: data.bet.category,
+    //             }
+    //         });
+    
+    //         // await this.monacoService.openMarket(marketResponse.data.marketPk);
+    
+    //         return bet;
+    //     } catch (error) {
+    //         console.error("Error in createBet:", error);
+    //         throw new Error(`Failed to create bet: ${error.message}`);
+    //     }
+    // }
+
     async createBet(data: CreateUserAndBetDto): Promise<Bet> {
         try {
             const user = await this.userService.findOrCreateUser(data);
 
-        // console.log('Creating market with data:', {
-        //     title: data.bet.title,
-        //     description: data.bet.description || '',
-        //     outcomes: [data.bet.creatorAnswer, 'Against'],
-        //     lockTime: new Date(data.bet.betDeadline).getTime() / 1000,
-        //     mintAccount: mintAccount.toString(),
-        // });
-
-        // const marketResponse = await this.monacoService.createMarket({
-        //     title: data.bet.title,
-        //     description: data.bet.description || '',
-        //     outcomes: [data.bet.creatorAnswer, 'Against'],
-        //     lockTime: new Date(data.bet.betDeadline).getTime() / 1000,
-        //     mintAccount: mintAccount,
-        // });
-
-        // console.log('Market creation response:', marketResponse);
-
-        // if (!marketResponse.success) {
-        //     console.error('Market creation failed:', marketResponse.error);
-        //     throw new Error(`Failed to create market in Monaco Protocol: ${marketResponse.error}`);
-        // }
-    
             const bet = await this.prisma.bet.create({
                 data: {
                     condition: data.bet.condition,
@@ -63,12 +98,13 @@ export class BetService {
                 }
             });
     
-            // await this.monacoService.openMarket(marketResponse.data.marketPk);
-    
             return bet;
         } catch (error) {
             console.error("Error in createBet:", error);
-            throw new Error(`Failed to create bet: ${error.message}`);
+            if (error instanceof InternalServerErrorException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(`Failed to create bet: ${error.message}`);
         }
     }
 

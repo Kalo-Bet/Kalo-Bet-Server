@@ -1,38 +1,23 @@
-import { INestApplication, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-    // private prisma: PrismaClient;
+  constructor() {
+    super({
+      datasources: {
+        db: {
+          url: `${process.env.DATABASE_URL}?pgbouncer=true&prepare=false`,
+        },
+      },
+    });
+  }
 
-    // constructor() {
-    //     this.prisma = new PrismaClient();
-    // }
+  async onModuleInit() {
+    await this.$connect();
+  }
 
-    async onModuleInit() {
-        try {
-            await this.$connect();
-            console.log('Prisma connected successfully');
-        } catch (error) {
-            console.error('Prisma connection error:', error);
-        }
-    }
-
-    async onModuleDestroy() {
-        await this.$disconnect();
-        console.log('Prisma disconnected successfully');
-    }
-
-    async enableShutdownHooks(app: INestApplication) {
-        const shutdownFunction = async () => {
-            try {
-                await app.close();
-            } catch (error) {
-                console.error('Error closing application:', error);
-            }
-        };
-
-        process.on('SIGINT', shutdownFunction);
-        process.on('SIGTERM', shutdownFunction);
-    }
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
 }
