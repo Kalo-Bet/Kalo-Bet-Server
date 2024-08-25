@@ -23,7 +23,7 @@ export class UserService {
                     email: createUserDto.email,
                     firstName: createUserDto.firstName,
                     lastName: createUserDto.lastName,
-                    userAddress: createUserDto.userAddress,
+                    walletAddress: createUserDto.walletAddress,
                     userName: createUserDto.userName
                 },
             });

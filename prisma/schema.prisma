@@ -3,124 +3,96 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["nativeDistinct"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-model Bet {
-  id                          String    @id @default(uuid())
-  createdAt                   DateTime  @default(now())
-  condition                   String
-  currency                    String
-  title                       String
-  description                 String?
-  betCondition                String
-  category                    String?
-  creatorId                   String
-  winner                      String?
-  loser                       String?
-  betAnswer                   Boolean?
-  betVisibilty                String
-  isBetAvialable              Boolean
-  betDeadline                 String
-  opponentStakeAmount         Float?
-  creatorStakeAmount          Float
-  creatorAllow3partyApproval  Boolean?
-  opponentAllow3partyApproval Boolean?
-  betApproverMail             String?
-  isBetApprove                Boolean
-  creatorAnswer               String
-  opponentAnswer              String?
-  opponentId                  String?
-  creatorName                 String
-  opponentName                String?
-  marketPublicKey             String    @unique
-  status                      BetStatus @default(OPEN)
-  liquidity                   Float     @default(0)
-  winningOutcome              Int?
-  historys                    History[]
-  orders                      Order[]
+
+enum BetStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  DISPUTED
+  CANCELLED
 }
 
-model Order {
-  id             String      @id @default(uuid())
-  createdAt      DateTime    @default(now())
-  betId          String
-  userId         String
-  amount         Float
-  outcome        Int
-  orderPublicKey String      @unique
-  status         OrderStatus
-  bet            Bet         @relation(fields: [betId], references: [id])
-  user           User        @relation(fields: [userId], references: [id])
-}
-
-model OddsBet {
-  id             String   @id @default(uuid())
-  createdAt      DateTime @default(now())
-  condition      String
-  creatorId      String
-  title          String
-  description    String?
-  isBetAvialable Boolean
-  betCondition   String
-  category       String?
-  betDeadline    String
-  forOdd         Float
-  againstOdd     Float
-}
-
-model OddBetStack {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  amount    Float
-  answer    String
-  userId    String
-  currency  String
-  user      User     @relation(fields: [userId], references: [id])
-}
-
-model History {
-  id            String   @id @default(uuid())
-  createdAt     DateTime @default(now())
-  betId         String
-  winnerId      String
-  loserId       String
-  betApprovalId String?
-  title         String
-  bets          Bet      @relation(fields: [betId], references: [id])
+enum Outcome {
+  WIN
+  LOSE
+  PENDING
 }
 
 model User {
-  id          String        @id @default(uuid())
-  createdAt   DateTime      @default(now())
-  email       String        @unique
-  firstName   String
-  lastName    String
-  updateAt    DateTime?     @default(now())
-  userAddress String
-  userName    String
-  userBet     OddBetStack[]
-  orders      Order[]
+  id              String           @id @default(uuid())
+  firstName       String
+  lastName        String
+  userName        String?
+  email           String           @unique
+  walletAddress   String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdBets     Bet[]            @relation("CreatedBets")
+  betParticipants BetParticipant[]
+  transactions    Transaction[]
+  betApprovals    BetApproval[]    @relation("ApprovedByUser")
 }
 
-enum BetStatus {
-  OPEN
-  LOCKED
-  SETTLED
-  VOIDED
+model Bet {
+  id                   String           @id @default(uuid())
+  creator              User             @relation("CreatedBets", fields: [creatorId], references: [id])
+  creatorId            String
+  totalAmount          Decimal          @db.Decimal(20, 8)
+  minimumBetAmount     Decimal          @db.Decimal(20, 8)
+  status               BetStatus        @default(PENDING)
+  source               String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  participants         BetParticipant[]
+  approvals            BetApproval[]
+  squadMultisigAddress String
+  transactions         Transaction[]    @relation("BetTransactions")
 }
 
-enum OrderStatus {
-  PLACED
-  MATCHED
-  SETTLED
-  CANCELLED
+model BetParticipant {
+  id        String        @id @default(uuid())
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  bet       Bet           @relation(fields: [betId], references: [id])
+  betId     String
+  amount    Decimal       @db.Decimal(20, 8)
+  outcome   Outcome       @default(PENDING)
+  approved  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  approvals BetApproval[] @relation("ParticipantApprovals")
+}
+
+model BetApproval {
+  id            String          @id @default(uuid())
+  bet           Bet             @relation(fields: [betId], references: [id])
+  betId         String
+  participant   BetParticipant? @relation("ParticipantApprovals", fields: [participantId], references: [id])
+  participantId String?
+  approvedBy    User            @relation("ApprovedByUser", fields: [approvedById], references: [id])
+  approvedById  String
+  approved      Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+}
+
+model Transaction {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  bet             Bet      @relation("BetTransactions", fields: [betId], references: [id])
+  betId           String
+  amount          Decimal  @db.Decimal(20, 8)
+  transactionHash String
+  createdAt       DateTime @default(now())
 }

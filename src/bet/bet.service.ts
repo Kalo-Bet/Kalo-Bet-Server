@@ -3,7 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { Bet, OddsBet, Order, BetStatus, OrderStatus } from "@prisma/client";
 import { UserService } from "../user/user.service";
 import { CreateUserAndBetDto } from "../dto/create-bet.dto";
-import { CreateOddBetWithUserDto } from "../dto/create-odd-bet.dto";
+import { CreateOddBetWithUserDto } from "../dto/bet.dto";
 import { BetOpponentWithUserDto } from "../dto/bet-opponent.dto";
 import { UserDetailsDto } from "../dto/user-details.dto";
 

@@ -3,7 +3,7 @@ import { User } from "@prisma/client";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "src/dto/user.dto";
 
-@Controller("api/user")
+@Controller("user")
 export class UserController {
    constructor(private readonly userService: UserService){}
 
@@ -12,7 +12,7 @@ export class UserController {
         return this.userService.findOrCreateUser(createUserDto);
     }
 
-    @Get('findUserByEmail')
+    @Get('userEmail')
     async getUser(@Query('email') email: string) {
         return this.userService.getUserByEmail(email);
     }

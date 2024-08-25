@@ -2,7 +2,7 @@ import { Body, Controller, Get, InternalServerErrorException, Post, Put, Query }
 import { Bet, OddsBet } from "@prisma/client";
 import { CreateUserAndBetDto } from "../dto/create-bet.dto";
 import { BetService } from "./bet.service";
-import { CreateOddBetWithUserDto } from "../dto/create-odd-bet.dto";
+import { CreateOddBetWithUserDto } from "../dto/bet.dto";
 import { BetOpponentWithUserDto } from "../dto/bet-opponent.dto";
 import { UserDetailsDto } from "../dto/user-details.dto";
 
