@@ -9,11 +9,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-
 
 enum BetStatus {
   PENDING
@@ -45,33 +44,36 @@ model User {
 }
 
 model Bet {
-  id                   String           @id @default(uuid())
-  creator              User             @relation("CreatedBets", fields: [creatorId], references: [id])
-  creatorId            String
-  totalAmount          Decimal          @db.Decimal(20, 8)
-  minimumBetAmount     Decimal          @db.Decimal(20, 8)
-  status               BetStatus        @default(PENDING)
-  source               String?
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
-  participants         BetParticipant[]
-  approvals            BetApproval[]
-  squadMultisigAddress String
-  transactions         Transaction[]    @relation("BetTransactions")
+  id               String           @id @default(uuid())
+  creator          User             @relation("CreatedBets", fields: [creatorId], references: [id])
+  creatorId        String
+  betName          String
+  description      String
+  totalAmount      Decimal          @db.Decimal(20, 8)
+  minimumBetAmount Decimal          @db.Decimal(20, 8)
+  status           BetStatus        @default(PENDING)
+  source           String?
+  betDeadline      String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime?        @updatedAt
+  participants     BetParticipant[]
+  approvals        BetApproval[]
+  transactions     Transaction[]    @relation("BetTransactions")
 }
 
 model BetParticipant {
-  id        String        @id @default(uuid())
-  user      User          @relation(fields: [userId], references: [id])
-  userId    String
-  bet       Bet           @relation(fields: [betId], references: [id])
-  betId     String
-  amount    Decimal       @db.Decimal(20, 8)
-  outcome   Outcome       @default(PENDING)
-  approved  Boolean       @default(false)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  approvals BetApproval[] @relation("ParticipantApprovals")
+  id                   String        @id @default(uuid())
+  user                 User          @relation(fields: [userId], references: [id])
+  userId               String
+  bet                  Bet           @relation(fields: [betId], references: [id])
+  betId                String
+  amount               Decimal       @db.Decimal(20, 8)
+  outcome              Outcome       @default(PENDING)
+  approved             Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  squadMultisigAddress String
+  approvals            BetApproval[] @relation("ParticipantApprovals")
 }
 
 model BetApproval {

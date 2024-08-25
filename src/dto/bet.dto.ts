@@ -1,38 +1,15 @@
-import { IsString, IsBoolean, IsNumber, IsDateString, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsEmail,
+  ValidateNested,
+  IsUUID,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class CreateOddBetDto {
-  @IsString()
-  condition: string;
-
-  @IsString()
-  title: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsString()
-  betCondition: string;
-
-  @IsBoolean()
-  isBetAvialable: boolean;
-
-  @IsDateString()
-  betDeadline: string;
-
-  @IsNumber()
-  forOdd: number;
-
-  @IsNumber()
-  againstOdd: number;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
-}
-
-export class CreateOddBetWithUserDto {
-  @IsString()
+export class UserDto {
+  @IsEmail()
   email: string;
 
   @IsString()
@@ -42,10 +19,46 @@ export class CreateOddBetWithUserDto {
   lastName: string;
 
   @IsString()
-  userAddress: string;
+  walletAddress: string;
+
+  @IsOptional()
+  @IsString()
+  userName?: string;
+}
+
+export class CreateBetDto {
+  @IsString()
+  betName: string;
+
+  @IsNumber()
+  totalAmount: number;
+
+  @IsNumber()
+  minimumBetAmount: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  source?: string;
+
+  @ValidateNested()
+  @Type(() => UserDto)
+  user: UserDto;
+}
+
+export class AddParticipate {
+  @IsUUID()
+  betId: string
+
+  @IsNumber()
+  amount: number
 
   @IsString()
-  userName: string;
+  squadMultisigAddress: string
 
-  bet: CreateOddBetDto;
+  @IsString()
+  email: string
 }
